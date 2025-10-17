@@ -1,13 +1,14 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'http://127.0.0.1:8000', // Your FastAPI backend
+  baseURL: 'http://127.0.0.1:8000', 
   headers: { 'Content-Type': 'application/json' },
 });
 
 const api = {
   getMediaItems: () => apiClient.get('/media/'),
-  // We'll add create, update, and delete functions here later
+  createMediaItem: (itemData) => apiClient.post('/media/', itemData),
+
 };
 
-export default api;     
+export default api;

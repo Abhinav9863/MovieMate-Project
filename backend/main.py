@@ -43,3 +43,13 @@ def read_movies(db: Session = Depends(get_db)):
 
     movies = db.query(models.Movie).all()
     return movies
+
+@app.get("/movies/{movie_id}", response_model=schemas.Movie)
+def read_movie(movie_id: int, db: Session = Depends(get_db)):
+
+    movie = db.query(models.Movie).filter(models.Movie.id == movie_id).first()
+    
+    if movie is None:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    
+    return movie

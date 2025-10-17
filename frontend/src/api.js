@@ -9,7 +9,8 @@ const api = {
   getMediaItems: () => apiClient.get('/media/'),
   createMediaItem: (itemData) => apiClient.post('/media/', itemData),
 deleteMediaItem: (id) => apiClient.delete(`/media/${id}`),
-
+getMediaItemById: (id) => apiClient.get(`/media/${id}`),
+  updateMediaItem: (id, itemData) => apiClient.put(`/media/${id}`, itemData),
 };
 
 export default api;

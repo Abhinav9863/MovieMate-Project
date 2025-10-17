@@ -45,7 +45,7 @@ def read_media_items(
     if platform:
         query = query.filter(models.MediaItem.platform == platform)
     if genre:
-        query = query.filter(models.MediaItem.genre.ilike(f"%{genre}%"))
+        query = query.filter(models.MediaItem.genree.ilike(f"%{genre}%"))
 
     # Execute the final query
     items = query.all()

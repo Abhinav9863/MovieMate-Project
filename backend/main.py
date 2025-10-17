@@ -47,18 +47,29 @@ def read_media_items(
     status: Optional[Status] = None,
     platform: Optional[Platform] = None,
     genre: Optional[str] = None,
+    sort_by: Optional[str] = None, 
+    order: Optional[str] = None,   
     db: Session = Depends(get_db)
 ):
     
     query = db.query(models.MediaItem)
 
-    # Apply filters if they are provided
+    
     if status:
         query = query.filter(models.MediaItem.status == status)
     if platform:
         query = query.filter(models.MediaItem.platform == platform)
     if genre:
         query = query.filter(models.MediaItem.genree.ilike(f"%{genre}%"))
+        
+        
+    if sort_by:
+        sort_column = getattr(models.MediaItem, sort_by, None)
+        if sort_column:
+            if order and order.lower() == "desc":
+                query = query.order_by(sort_column.desc())
+            else:
+                query = query.order_by(sort_column.asc())
 
     # Execute the final query
     items = query.all()

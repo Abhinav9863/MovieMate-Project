@@ -5,7 +5,6 @@ import models
 import schemas
 from database import SessionLocal, engine
 
-
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -17,74 +16,49 @@ def get_db():
     finally:
         db.close()
 
-# --- API Endpoints ---
-
 @app.get("/")
 def read_root():
-\
     return {"message": "Welcome to the MovieMate API!"}
 
-
-@app.post("/movies/", response_model=schemas.Movie)
-def create_movie(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
-
-    db_movie = models.Movie(**movie.model_dump())
-    
-    db.add(db_movie)
-    
+@app.post("/media/", response_model=schemas.MediaItem)
+def create_media_item(item: schemas.MediaItemCreate, db: Session = Depends(get_db)):
+    db_item = models.MediaItem(**item.model_dump())
+    db.add(db_item)
     db.commit()
-    
-    db.refresh(db_movie)
-    
-    return db_movie
+    db.refresh(db_item)
+    return db_item
 
-@app.get("/movies/", response_model=List[schemas.Movie])
-def read_movies(db: Session = Depends(get_db)):
+@app.get("/media/", response_model=List[schemas.MediaItem])
+def read_media_items(db: Session = Depends(get_db)):
+    items = db.query(models.MediaItem).all()
+    return items
 
-    movies = db.query(models.Movie).all()
-    return movies
+@app.get("/media/{item_id}", response_model=schemas.MediaItem)
+def read_media_item(item_id: int, db: Session = Depends(get_db)):
+    item = db.query(models.MediaItem).filter(models.MediaItem.id == item_id).first()
+    if item is None:
+        raise HTTPException(status_code=404, detail="Media item not found")
+    return item
 
-@app.get("/movies/{movie_id}", response_model=schemas.Movie)
-def read_movie(movie_id: int, db: Session = Depends(get_db)):
-
-    movie = db.query(models.Movie).filter(models.Movie.id == movie_id).first()
-    
-    if movie is None:
-        raise HTTPException(status_code=404, detail="Movie not found")
-    
-    return movie
-
-@app.put("/movies/{movie_id}", response_model=schemas.Movie)
-def update_movie(movie_id: int, updated_movie: schemas.MovieCreate, db: Session = Depends(get_db)):
-
-    db_movie = db.query(models.Movie).filter(models.Movie.id == movie_id).first()
-    
-    if db_movie is None:
-        raise HTTPException(status_code=404, detail="Movie not found")
-    
-    for key, value in updated_movie.model_dump().items():
-        setattr(db_movie, key, value)
-    
-    db.commit()
-    db.refresh(db_movie)
-    
-    return db_movie
-
-@app.delete("/movies/{movie_id}", status_code=204)
-def delete_movie(movie_id: int, db: Session = Depends(get_db)):
-    """
-    Delete a movie from the database by its ID.
-    """
-   
-    db_movie = db.query(models.Movie).filter(models.Movie.id == movie_id).first()
-    
-   
-    if db_movie is None:
-        raise HTTPException(status_code=404, detail="Movie not found")
+@app.put("/media/{item_id}", response_model=schemas.MediaItem)
+def update_media_item(item_id: int, item_update: schemas.MediaItemCreate, db: Session = Depends(get_db)):
+    db_item = db.query(models.MediaItem).filter(models.MediaItem.id == item_id).first()
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Media item not found")
         
-  
-    db.delete(db_movie)
+    for key, value in item_update.model_dump().items():
+        setattr(db_item, key, value)
+        
     db.commit()
-    
-  
+    db.refresh(db_item)
+    return db_item
+
+@app.delete("/media/{item_id}", status_code=204)
+def delete_media_item(item_id: int, db: Session = Depends(get_db)):
+    db_item = db.query(models.MediaItem).filter(models.MediaItem.id == item_id).first()
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Media item not found")
+        
+    db.delete(db_item)
+    db.commit()
     return

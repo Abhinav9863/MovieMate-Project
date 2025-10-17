@@ -1,8 +1,9 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List ,Optional
 import models
 import schemas
+from models import Status, Platform
 from database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
@@ -29,8 +30,25 @@ def create_media_item(item: schemas.MediaItemCreate, db: Session = Depends(get_d
     return db_item
 
 @app.get("/media/", response_model=List[schemas.MediaItem])
-def read_media_items(db: Session = Depends(get_db)):
-    items = db.query(models.MediaItem).all()
+def read_media_items(
+    status: Optional[Status] = None,
+    platform: Optional[Platform] = None,
+    genre: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    
+    query = db.query(models.MediaItem)
+
+    # Apply filters if they are provided
+    if status:
+        query = query.filter(models.MediaItem.status == status)
+    if platform:
+        query = query.filter(models.MediaItem.platform == platform)
+    if genre:
+        query = query.filter(models.MediaItem.genre.ilike(f"%{genre}%"))
+
+    # Execute the final query
+    items = query.all()
     return items
 
 @app.get("/media/{item_id}", response_model=schemas.MediaItem)

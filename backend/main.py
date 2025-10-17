@@ -71,22 +71,26 @@ def read_media_items(
     status: Optional[Status] = None,
     platform: Optional[Platform] = None,
     genre: Optional[str] = None,
-    sort_by: Optional[str] = None, 
-    order: Optional[str] = None,   
+    sort_by: Optional[str] = None,
+    order: Optional[str] = None,
+    search: Optional[str] = None, # <-- ADD SEARCH PARAM
     db: Session = Depends(get_db)
 ):
-    
     query = db.query(models.MediaItem)
 
-    
+    # Filtering
     if status:
         query = query.filter(models.MediaItem.status == status)
     if platform:
         query = query.filter(models.MediaItem.platform == platform)
     if genre:
-        query = query.filter(models.MediaItem.genree.ilike(f"%{genre}%"))
-        
+        query = query.filter(models.MediaItem.genre.ilike(f"%{genre}%"))
 
+    # --- ADD SEARCH FILTER ---
+    if search:
+        query = query.filter(models.MediaItem.title.ilike(f"%{search}%")) # Search in title
+
+    # Sorting
     if sort_by:
         sort_column = getattr(models.MediaItem, sort_by, None)
         if sort_column:
@@ -95,7 +99,6 @@ def read_media_items(
             else:
                 query = query.order_by(sort_column.asc())
 
-    # Execute the final query
     items = query.all()
     return items
 

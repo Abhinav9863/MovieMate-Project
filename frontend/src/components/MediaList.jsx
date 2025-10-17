@@ -12,27 +12,38 @@ import {
   useToast,
   HStack,
   Select,
+  Input,
 } from '@chakra-ui/react';
 
 const MediaList = () => {
   const [mediaItems, setMediaItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const toast = useToast();
-  
-  // State for sorting
-  const [sortBy, setSortBy] = useState('title'); // Default sort
-  const [order, setOrder] = useState('asc');     // Default order
+  const [sortBy, setSortBy] = useState('title');
+  const [order, setOrder] = useState('asc');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
-  // useEffect now re-runs when sorting changes
   useEffect(() => {
-    setIsLoading(true); // Show spinner when re-fetching
+    const timerId = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [searchQuery]);
+
+  useEffect(() => {
+    setIsLoading(true);
     
     const params = {
       sort_by: sortBy,
       order: order,
+      search: debouncedSearchQuery,
     };
 
-    api.getMediaItems(params) // Pass the sort params to the API
+    api.getMediaItems(params)
       .then((response) => {
         setMediaItems(response.data);
         setIsLoading(false);
@@ -41,10 +52,9 @@ const MediaList = () => {
         console.error('Error fetching media items:', error);
         setIsLoading(false);
       });
-  }, [sortBy, order]); // Dependency array includes sortBy and order
+  }, [sortBy, order, debouncedSearchQuery]);
 
   const handleDelete = (event, id) => {
-    // Stop the event from bubbling up to the Link wrapper
     event.preventDefault();
     event.stopPropagation();
     
@@ -56,7 +66,6 @@ const MediaList = () => {
           duration: 2000,
           isClosable: true,
         });
-        // Remove the item from the list in our state
         setMediaItems((prevItems) => prevItems.filter((item) => item.id !== id));
       })
       .catch((error) => {
@@ -76,8 +85,13 @@ const MediaList = () => {
 
   return (
     <>
-      {/* --- SORTING UI --- */}
       <HStack spacing={4} mb={6}>
+        <Input 
+          placeholder="Search by title..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          w="300px" 
+        />
         <Select 
           value={sortBy} 
           onChange={(e) => setSortBy(e.target.value)}
@@ -87,7 +101,6 @@ const MediaList = () => {
           <option value="rating">Sort by Rating</option>
           <option value="id">Sort by Date Added</option>
         </Select>
-
         <Select 
           value={order} 
           onChange={(e) => setOrder(e.target.value)}
@@ -98,7 +111,6 @@ const MediaList = () => {
         </Select>
       </HStack>
 
-      {/* --- MEDIA GRID --- */}
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
         {mediaItems.map((item) => (
           <Link to={`/media/${item.id}`} key={item.id}>
@@ -127,14 +139,14 @@ const MediaList = () => {
                   to={`/edit/${item.id}`}
                   size="sm"
                   colorScheme="blue"
-                  onClick={(e) => e.stopPropagation()} // Stop click from going to Link
+                  onClick={(e) => e.stopPropagation()} 
                 >
                   Edit
                 </Button>
                 <Button
                   size="sm"
                   colorScheme="red"
-                  onClick={(e) => handleDelete(e, item.id)} // Pass event to stop propagation
+                  onClick={(e) => handleDelete(e, item.id)} 
                 >
                   Delete
                 </Button>

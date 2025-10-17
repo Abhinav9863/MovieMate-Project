@@ -7,11 +7,14 @@ import {
   Text,
   Badge,
   Spinner,
+  Button,    
+  useToast,
 } from '@chakra-ui/react';
 
 const MediaList = () => {
   const [mediaItems, setMediaItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const toast = useToast(); 
 
   useEffect(() => {
     api.getMediaItems()
@@ -28,6 +31,28 @@ const MediaList = () => {
   if (isLoading) {
     return <Spinner size="xl" />;
   }
+  const handleDelete = (id) => {
+    api.deleteMediaItem(id)
+      .then(() => {
+        toast({
+          title: 'Item deleted.',
+          status: 'success',
+          duration: 2000,
+          isClosable: true,
+        });
+        
+        setMediaItems((prevItems) => prevItems.filter((item) => item.id !== id));
+      })
+      .catch((error) => {
+        console.error('Error deleting item:', error);
+        toast({
+          title: 'Error deleting item.',
+          status: 'error',
+          duration: 2000,
+          isClosable: true,
+        });
+      });
+  };
 
   return (
     <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
@@ -40,6 +65,14 @@ const MediaList = () => {
             {item.status}
           </Badge>
           <Badge colorScheme="blue">{item.item_type}</Badge>
+          <Button
+            size="sm"
+            colorScheme="red"
+            mt={4}
+            onClick={() => handleDelete(item.id)}
+          >
+            Delete
+          </Button>
         </Box>
       ))}
     </SimpleGrid>

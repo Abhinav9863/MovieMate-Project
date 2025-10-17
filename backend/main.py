@@ -69,3 +69,22 @@ def update_movie(movie_id: int, updated_movie: schemas.MovieCreate, db: Session 
     db.refresh(db_movie)
     
     return db_movie
+
+@app.delete("/movies/{movie_id}", status_code=204)
+def delete_movie(movie_id: int, db: Session = Depends(get_db)):
+    """
+    Delete a movie from the database by its ID.
+    """
+   
+    db_movie = db.query(models.Movie).filter(models.Movie.id == movie_id).first()
+    
+   
+    if db_movie is None:
+        raise HTTPException(status_code=404, detail="Movie not found")
+        
+  
+    db.delete(db_movie)
+    db.commit()
+    
+  
+    return

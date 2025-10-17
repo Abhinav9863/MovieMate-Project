@@ -14,6 +14,7 @@ import {
   Select,
   Input,
 } from '@chakra-ui/react';
+import StatusChart from './StatusChart';
 
 const MediaList = () => {
   const [mediaItems, setMediaItems] = useState([]);
@@ -82,6 +83,11 @@ const MediaList = () => {
   if (isLoading) {
     return <Spinner size="xl" />;
   }
+
+  const statusCounts = mediaItems.reduce((acc, item) => {
+    acc[item.status] = (acc[item.status] || 0) + 1;
+    return acc;
+  }, {});
 
   return (
     <>
@@ -155,6 +161,8 @@ const MediaList = () => {
           </Link>
         ))}
       </SimpleGrid>
+      
+      <StatusChart data={statusCounts} /> 
     </>
   );
 };

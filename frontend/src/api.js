@@ -6,7 +6,7 @@ const apiClient = axios.create({
 });
 
 const api = {
-  getMediaItems: () => apiClient.get('/media/'),
+getMediaItems: (params) => apiClient.get('/media/', { params }),
   createMediaItem: (itemData) => apiClient.post('/media/', itemData),
 deleteMediaItem: (id) => apiClient.delete(`/media/${id}`),
 getMediaItemById: (id) => apiClient.get(`/media/${id}`),

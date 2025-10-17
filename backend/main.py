@@ -1,3 +1,6 @@
+import os
+import httpx
+from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -6,6 +9,9 @@ import models
 import schemas
 from models import Status, Platform
 from database import SessionLocal, engine
+
+load_dotenv()
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -29,6 +35,24 @@ def get_db():
         yield db
     finally:
         db.close()
+
+@app.get("/search/")
+async def search_tmdb(query: str):
+
+    if not TMDB_API_KEY:
+        raise HTTPException(status_code=500, detail="TMDB API key not configured")
+
+    search_url = f"https://api.themoviedb.org/3/search/multi?query={query}&api_key={TMDB_API_KEY}"
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(search_url)
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            raise HTTPException(status_code=e.response.status_code, detail="Error from TMDB")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.get("/")
 def read_root():
@@ -62,7 +86,7 @@ def read_media_items(
     if genre:
         query = query.filter(models.MediaItem.genree.ilike(f"%{genre}%"))
         
-        
+
     if sort_by:
         sort_column = getattr(models.MediaItem, sort_by, None)
         if sort_column:

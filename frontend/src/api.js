@@ -11,6 +11,7 @@ getMediaItems: (params) => apiClient.get('/media/', { params }),
 deleteMediaItem: (id) => apiClient.delete(`/media/${id}`),
 getMediaItemById: (id) => apiClient.get(`/media/${id}`),
   updateMediaItem: (id, itemData) => apiClient.put(`/media/${id}`, itemData),
+  searchTMDB: (query) => apiClient.get(`/search/?query=${encodeURIComponent(query)}`),
 };
 
 export default api;

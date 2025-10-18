@@ -18,15 +18,15 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173", # The origin of your React app
+    "http://localhost:5173", 
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"], # Allow all methods (GET, POST, etc.)
-    allow_headers=["*"], # Allow all headers
+    allow_methods=["*"], 
+    allow_headers=["*"], 
 )
 
 def get_db():
@@ -73,7 +73,7 @@ def read_media_items(
     genre: Optional[str] = None,
     sort_by: Optional[str] = None,
     order: Optional[str] = None,
-    search: Optional[str] = None, # <-- ADD SEARCH PARAM
+    search: Optional[str] = None, 
     db: Session = Depends(get_db)
 ):
     query = db.query(models.MediaItem)

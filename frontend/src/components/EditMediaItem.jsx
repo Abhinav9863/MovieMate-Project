@@ -16,18 +16,16 @@ import {
 } from '@chakra-ui/react';
 
 const EditMediaItem = () => {
-  // 1. Get the 'id' from the URL (e.g., /edit/1)
   const { id } = useParams(); 
 
-  const [formData, setFormData] = useState(null); // Start as null
+  const [formData, setFormData] = useState(null); 
   const navigate = useNavigate();
   const toast = useToast();
 
-  // 2. Fetch the item's data when the page loads
   useEffect(() => {
     api.getMediaItemById(id)
       .then((response) => {
-        setFormData(response.data); // Set the form data
+        setFormData(response.data);
       })
       .catch((error) => {
         console.error('Error fetching item:', error);
@@ -43,7 +41,6 @@ const EditMediaItem = () => {
     }));
   };
 
-  // 3. Handle the 'Update' submission
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -56,7 +53,7 @@ const EditMediaItem = () => {
     api.updateMediaItem(id, dataToSubmit)
       .then((response) => {
         toast({ title: 'Item updated.', status: 'success' });
-        navigate('/'); // Go back home
+        navigate('/'); 
       })
       .catch((error) => {
         console.error('Error updating item:', error);
@@ -64,13 +61,10 @@ const EditMediaItem = () => {
       });
   };
 
-  // 4. Show a spinner while data is loading
   if (!formData) {
     return <Spinner size="xl" />;
   }
 
-  // 5. This is the same form as AddMediaItem, but uses 'value'
-  //    to pre-fill the fields
   return (
     <Box as="form" onSubmit={handleSubmit}>
       <VStack spacing={4} align="stretch">

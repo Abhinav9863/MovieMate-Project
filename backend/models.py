@@ -21,13 +21,13 @@ class MediaItem(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
-    director = Column(String, nullable=True) # Director is optional
+    director = Column(String, nullable=True) 
     genre = Column(String)
     platform = Column(String) 
     status = Column(String) 
     
-    # --- NEW FIELDS ---
+    
     item_type = Column(SAEnum(ItemType), default=ItemType.movie)
     episodes_watched = Column(Integer, default=0)
-    rating = Column(Float, nullable=True) # e.g., 8.5
-    review = Column(Text, nullable=True) # Longer text field
+    rating = Column(Float, nullable=True) 
+    review = Column(Text, nullable=True) 

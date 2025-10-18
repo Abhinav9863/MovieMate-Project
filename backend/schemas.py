@@ -4,7 +4,7 @@ from typing import Optional
 
 class MediaItemBase(BaseModel):
     title: str
-    director: Optional[str] = None # Make director optional
+    director: Optional[str] = None 
     genre: str
     platform: Platform
     status: Status

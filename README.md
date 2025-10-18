@@ -1,9 +1,6 @@
 # MovieMate: Full-Stack Media Tracker
 
 This is a full-stack application submitted for the SayOne Technologies hiring task. It's a personal media tracker for movies and TV shows, built with React (Vite), FastAPI (Python), and SQLAlchemy/SQLite.
-
-**Link to Live Demo Video:** [YOUR 2-3 MINUTE VIDEO LINK GOES HERE - Important!]
-
 ---
 
 ## Features
